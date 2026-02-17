@@ -1,0 +1,78 @@
+#include "Game.hpp"
+
+Game::Game() {
+  is_running = true;
+  window_dimensions = {1000, 1000};
+  cell_map.init_cell_map(window_dimensions);
+}
+
+bool Game::initialize() {
+  bool sdl_result = SDL_Init(SDL_INIT_VIDEO);
+  if (!sdl_result) {
+    SDL_Log("Error initializing SDL.");
+    return false;
+  }
+
+  window = SDL_CreateWindow("GameOfLife", window_dimensions.width, window_dimensions.height, 0);
+  if (!window) {
+    SDL_Log("Error creating window.");
+    return false;
+  }
+
+  renderer = SDL_CreateRenderer(window, NULL);
+  if (!renderer) {
+    SDL_Log("Error creating renderer.");
+    return false;
+  }
+
+  return true;
+}
+
+void Game::run_loop() {
+  while (is_running) {
+    process_input();
+    update_game();
+    generate_output();
+  }
+}
+
+void Game::shutdown() {
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+}
+
+void Game::process_input() {
+  SDL_Event event;
+
+  while (SDL_PollEvent(&event)) {
+    switch (event.type) {
+      case SDL_EVENT_QUIT:
+        is_running = false;
+        break;
+    }
+  }
+
+  const bool *keyboard_state = SDL_GetKeyboardState(NULL);
+
+  if (keyboard_state[SDL_SCANCODE_ESCAPE]) {
+    is_running = false;
+  }
+
+  if (keyboard_state[SDL_SCANCODE_Q]) {
+    is_running = false;
+  }
+
+}
+
+void Game::generate_output() {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_RenderClear(renderer);
+
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+  cell_map.render_cells(renderer);
+
+  SDL_RenderPresent(renderer);
+}
+
+void Game::update_game() {}

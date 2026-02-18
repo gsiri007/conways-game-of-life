@@ -25,6 +25,7 @@ public:
   void toggle_cell_state(cell_pos_t cell_pos);
   SDL_FRect *get_cell_rect(cell_pos_t cell_pos);
   void render_cells(SDL_Renderer *renderer);
+  void set_cell_alive(SDL_FPoint *mouse_position);
 
 private:
   int num_rows;

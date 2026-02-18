@@ -1,4 +1,6 @@
 #include "Game.hpp"
+#include <SDL3/SDL_oldnames.h>
+#include <SDL3/SDL_rect.h>
 
 Game::Game() {
   is_running = true;
@@ -48,6 +50,12 @@ void Game::process_input() {
     switch (event.type) {
       case SDL_EVENT_QUIT:
         is_running = false;
+        break;
+      case SDL_EVENT_MOUSE_BUTTON_DOWN:
+        if (event.button.button == SDL_BUTTON_LEFT) {
+          SDL_FPoint mouse_pos {event.button.x, event.button.y};
+          cell_map.set_cell_alive(&mouse_pos);
+        }
         break;
     }
   }

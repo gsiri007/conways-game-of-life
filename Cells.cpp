@@ -1,4 +1,5 @@
 #include "Cells.hpp"
+#include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
 
@@ -69,9 +70,25 @@ void CellMap::render_cells(SDL_Renderer *renderer) {
     for (int j = 0; j < num_cols; j++) {
       cell_pos_t pos {i, j};
       cell_t target_cell = cell_map[pos.x][pos.y];
+
+      if (target_cell.state == 1) {
+        SDL_RenderFillRect(renderer, target_cell.rect);
+        continue;
+      }
+
       SDL_RenderRect(renderer, target_cell.rect);
     }
- 
   }
+}
 
+void CellMap::set_cell_alive(SDL_FPoint *mouse_position) {
+  for (int i = 0; i < cell_map.size(); i++) {
+    for (int j = 0; j < cell_map[i].size(); j++) {
+      cell_t &current_cell = cell_map[i][j];
+
+      if (SDL_PointInRectFloat(mouse_position, current_cell.rect)) {
+        current_cell.state = 1;
+      }
+    }
+  }
 }

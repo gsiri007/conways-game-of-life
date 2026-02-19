@@ -2,9 +2,25 @@
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
-#include <iostream>
 #include <stdexcept>
 #include <vector>
+
+CellMap::CellMap() {
+  is_updating = false;
+}
+
+void CellMap::toggle_update() {
+  if (is_updating) {
+    is_updating = false;
+    return;
+  }
+
+  is_updating = true;
+}
+
+bool CellMap::get_update_state() {
+  return is_updating;
+}
 
 void CellMap::init_cell_map(map_dimensions_t map_dimensions) {
   float cell_width = (5.0 / 100) * map_dimensions.width;
@@ -33,34 +49,10 @@ void CellMap::init_cell_map(map_dimensions_t map_dimensions) {
   }
 }
 
-void CellMap::init_cell_map(map_dimensions_t map_dimensions, float cell_width, float cell_height) {
-  num_rows = map_dimensions.height / cell_height;
-  num_cols = map_dimensions.width / cell_width;
-
-  cell_map.resize(num_rows);
-
-  for (int i = 0; i < num_rows; i++) {
-    for (int j = 0; j < num_cols; j++) {
-      SDL_FRect *rect = new SDL_FRect();
-
-      rect->x = j * cell_width;
-      rect->y = i * cell_height;
-      rect->w = cell_width;
-      rect->h = cell_height;
-
-      map_index_t index {i, j};
-
-      cell_t cell {rect, 0, index};
-
-      cell_map[i].push_back(cell);
-    }
-  }
-}
-
 void CellMap::render_cells(SDL_Renderer *renderer) {
   for (int i = 0; i < num_rows; i++) {
     for (int j = 0; j < num_cols; j++) {
-      cell_t target_cell = cell_map[j][i];
+      cell_t target_cell = cell_map[i][j];
 
       if (target_cell.state == 1) {
         SDL_RenderFillRect(renderer, target_cell.rect);
@@ -95,7 +87,7 @@ bool CellMap::is_neighbour_cell(map_index_t neighbour) {
 
 }
 
-std::vector<cell_t> CellMap::get_neighbour_cells(cell_t cell) {
+std::vector<cell_t> CellMap::get_alive_neighbours(cell_t cell) {
   std::vector<cell_t> neighbour_cells;
 
 
@@ -114,58 +106,112 @@ std::vector<cell_t> CellMap::get_neighbour_cells(cell_t cell) {
 
   if (is_neighbour_cell(top_left_neighbour)) {
     cell_t neighbour_cell = cell_map[top_left_neighbour.row][top_left_neighbour.col];
-    neighbour_cells.push_back(neighbour_cell);
+    if (neighbour_cell.state == 1) {
+      neighbour_cells.push_back(neighbour_cell);
+    }
   }
 
   if (is_neighbour_cell(top_neighbour)) {
     cell_t neighbour_cell = cell_map[top_neighbour.row][top_neighbour.col];
-    neighbour_cells.push_back(neighbour_cell);
+    if (neighbour_cell.state == 1) {
+      neighbour_cells.push_back(neighbour_cell);
+    }
   }
 
   if (is_neighbour_cell(top_right_neighbour)) {
     cell_t neighbour_cell = cell_map[top_right_neighbour.row][top_right_neighbour.col];
-    neighbour_cells.push_back(neighbour_cell);
+    if (neighbour_cell.state == 1) {
+      neighbour_cells.push_back(neighbour_cell);
+    }
   }
 
   if (is_neighbour_cell(left_neighbour)) {
     cell_t neighbour_cell = cell_map[left_neighbour.row][left_neighbour.col];
-    neighbour_cells.push_back(neighbour_cell);
+    if (neighbour_cell.state == 1) {
+      neighbour_cells.push_back(neighbour_cell);
+    }
   }
 
   if (is_neighbour_cell(right_neighbour)) {
     cell_t neighbour_cell = cell_map[right_neighbour.row][right_neighbour.col];
-    neighbour_cells.push_back(neighbour_cell);
+    if (neighbour_cell.state == 1) {
+      neighbour_cells.push_back(neighbour_cell);
+    }
   }
 
   if (is_neighbour_cell(bottom_left_neighbour)) {
     cell_t neighbour_cell = cell_map[bottom_left_neighbour.row][bottom_left_neighbour.col];
-    neighbour_cells.push_back(neighbour_cell);
+    if (neighbour_cell.state == 1) {
+      neighbour_cells.push_back(neighbour_cell);
+    }
   }
 
   if (is_neighbour_cell(bottom_neighbour)) {
     cell_t neighbour_cell = cell_map[bottom_neighbour.row][bottom_neighbour.col];
-    neighbour_cells.push_back(neighbour_cell);
+    if (neighbour_cell.state == 1) {
+      neighbour_cells.push_back(neighbour_cell);
+    }
   }
 
   if (is_neighbour_cell(bottom_right_neighbour)) {
     cell_t neighbour_cell = cell_map[bottom_right_neighbour.row][bottom_right_neighbour.col];
-    neighbour_cells.push_back(neighbour_cell);
+    if (neighbour_cell.state == 1) {
+      neighbour_cells.push_back(neighbour_cell);
+    }
   }
 
   return neighbour_cells;
 }
 
-void CellMap::update_cell_map() {
-  for (int i = 0; i < 1; i++) {
-    for (int j = 0; j < 1; j++) {
-      cell_t current_cell = cell_map[j][i];
-      std::vector<cell_t> neighbour_cells = get_neighbour_cells(current_cell);
+void CellMap::update_cell_map(map_dimensions_t map_dimensions) {
+  std::vector<std::vector<cell_t>> next_cell_map;
+  std::vector<cell_t> alive_cells;
 
-      for (int k = 0; k < neighbour_cells.size(); k++) {
-        std::cout << "neighbour " << k << " -> " << "row: " << neighbour_cells[k].map_index.row
-          << " col: " << neighbour_cells[k].map_index.col<< '\n';
+  for (int i = 0; i < cell_map.size(); i++) {
+    for (int j = 0; j < cell_map[i].size(); j++) {
+      cell_t current_cell = cell_map[i][j];
+      std::vector<cell_t> alive_neighbours = get_alive_neighbours(current_cell);
+      if (alive_neighbours.size() == 3) {
+        current_cell.state = 1;
+        alive_cells.push_back(current_cell);
+      } else if ((alive_neighbours.size() == 2 || alive_neighbours.size() == 3) && current_cell.state == 1) {
+        alive_cells.push_back(current_cell);
+        continue;
+      } else {
+        current_cell.state = 0;
       }
-      std::cout << "--------------------------" << '\n';
     }
   }
+
+  float cell_width = (5.0 / 100) * map_dimensions.width;
+  float cell_height = (5.0 / 100) * map_dimensions.height;
+
+  num_rows = map_dimensions.height / cell_height;
+  num_cols = map_dimensions.width / cell_width;
+
+  next_cell_map.resize(num_rows);
+
+  for (int i = 0; i < num_rows; i++) {
+    for (int j = 0; j < num_cols; j++) {
+      SDL_FRect *rect = new SDL_FRect();
+
+      rect->x = j * cell_width;
+      rect->y = i * cell_height;
+      rect->w = cell_width;
+      rect->h = cell_height;
+
+      map_index_t index {i, j};
+
+      cell_t cell {rect, 0, index};
+
+      next_cell_map[i].push_back(cell);
+    }
+  }
+
+  for (int i = 0; i < alive_cells.size(); i++) {
+    cell_t alive_cell = alive_cells[i];
+    next_cell_map[alive_cell.map_index.row][alive_cell.map_index.col] = alive_cell;
+  }
+
+  cell_map = next_cell_map;
 }

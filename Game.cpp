@@ -1,6 +1,8 @@
 #include "Game.hpp"
 #include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_scancode.h>
+#include <iostream>
 
 Game::Game() {
   is_running = true;
@@ -70,6 +72,10 @@ void Game::process_input() {
     is_running = false;
   }
 
+  if (keyboard_state[SDL_SCANCODE_RETURN]) {
+    cell_map.toggle_update();
+  }
+
 }
 
 void Game::generate_output() {
@@ -84,5 +90,10 @@ void Game::generate_output() {
 }
 
 void Game::update_game() {
-  cell_map.update_cell_map();
+  if (cell_map.get_update_state()) {
+    std::cout << "Updating cell map" << '\n';
+    cell_map.update_cell_map(window_dimensions);
+    return;
+  }
+  std::cout << "Paused cell map" << '\n';
 }

@@ -12,11 +12,10 @@ private:
   bool is_running;
 
   SDL_Window *window;
-  map_dimensions_t window_dimensions;
-
   SDL_Renderer *renderer;
 
-  CellMap cell_map;
+  map_dimensions_t window_dimensions {1000, 1000};
+  CellMap cell_map = CellMap(window_dimensions);
 
   void process_input();
   void generate_output();

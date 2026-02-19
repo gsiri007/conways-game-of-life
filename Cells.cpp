@@ -5,26 +5,11 @@
 #include <stdexcept>
 #include <vector>
 
-CellMap::CellMap() {
+CellMap::CellMap(map_dimensions_t map_dimensions) {
   is_updating = false;
-}
 
-void CellMap::toggle_update() {
-  if (is_updating) {
-    is_updating = false;
-    return;
-  }
-
-  is_updating = true;
-}
-
-bool CellMap::get_update_state() {
-  return is_updating;
-}
-
-void CellMap::init_cell_map(map_dimensions_t map_dimensions) {
-  float cell_width = (5.0 / 100) * map_dimensions.width;
-  float cell_height = (5.0 / 100) * map_dimensions.height;
+  cell_width = (4.0 / 100) * map_dimensions.width;
+  cell_height = (4.0 / 100) * map_dimensions.height;
 
   num_rows = map_dimensions.height / cell_height;
   num_cols = map_dimensions.width / cell_width;
@@ -47,6 +32,20 @@ void CellMap::init_cell_map(map_dimensions_t map_dimensions) {
       cell_map[i].push_back(cell);
     }
   }
+
+}
+
+void CellMap::toggle_update() {
+  if (is_updating) {
+    is_updating = false;
+    return;
+  }
+
+  is_updating = true;
+}
+
+bool CellMap::get_update_state() {
+  return is_updating;
 }
 
 void CellMap::render_cells(SDL_Renderer *renderer) {
@@ -164,7 +163,7 @@ std::vector<cell_t> CellMap::get_alive_neighbours(cell_t cell) {
 }
 
 void CellMap::update_cell_map(map_dimensions_t map_dimensions) {
-  std::vector<std::vector<cell_t>> next_cell_map;
+  std::vector<std::vector<cell_t>> next_cell_map(num_rows);
   std::vector<cell_t> alive_cells;
 
   for (int i = 0; i < cell_map.size(); i++) {
@@ -182,14 +181,6 @@ void CellMap::update_cell_map(map_dimensions_t map_dimensions) {
       }
     }
   }
-
-  float cell_width = (5.0 / 100) * map_dimensions.width;
-  float cell_height = (5.0 / 100) * map_dimensions.height;
-
-  num_rows = map_dimensions.height / cell_height;
-  num_cols = map_dimensions.width / cell_width;
-
-  next_cell_map.resize(num_rows);
 
   for (int i = 0; i < num_rows; i++) {
     for (int j = 0; j < num_cols; j++) {

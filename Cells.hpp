@@ -21,8 +21,7 @@ typedef struct MapDimensions {
 
 class CellMap {
 public:
-  CellMap();
-  void init_cell_map(map_dimensions_t map_dimensions);
+  CellMap(map_dimensions_t map_dimensions);
   void render_cells(SDL_Renderer *renderer);
   void set_cell_alive(SDL_FPoint *mouse_position);
   void update_cell_map(map_dimensions_t map_dimensions);
@@ -32,8 +31,12 @@ public:
   std::vector<cell_t> get_alive_neighbours(cell_t cell);
 
 private:
+  float cell_width;
+  float cell_height;
+
   int num_rows;
   int num_cols;
+
   std::vector<std::vector<cell_t>> cell_map;
 
   bool is_updating;

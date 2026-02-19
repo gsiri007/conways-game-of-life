@@ -6,8 +6,6 @@
 
 Game::Game() {
   is_running = true;
-  window_dimensions = {1000, 1000};
-  cell_map.init_cell_map(window_dimensions);
 }
 
 bool Game::initialize() {

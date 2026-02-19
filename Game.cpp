@@ -83,4 +83,6 @@ void Game::generate_output() {
   SDL_RenderPresent(renderer);
 }
 
-void Game::update_game() {}
+void Game::update_game() {
+  cell_map.update_cell_map();
+}

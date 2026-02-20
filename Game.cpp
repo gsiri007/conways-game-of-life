@@ -2,6 +2,8 @@
 #include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_scancode.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_timer.h>
 #include <iostream>
 
 Game::Game() {
@@ -31,10 +33,24 @@ bool Game::initialize() {
 }
 
 void Game::run_loop() {
+  const int FPS {10};
+  const int frame_delay {1000 / FPS};
+
+  Uint64 frame_start;
+  int frame_time;
+
   while (is_running) {
+    frame_start = SDL_GetTicks();
+
     process_input();
     update_game();
     generate_output();
+
+    frame_time = SDL_GetTicks() - frame_start;
+
+    if (frame_time < frame_delay) {
+      SDL_Delay(frame_delay - frame_time);
+    }
   }
 }
 

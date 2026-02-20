@@ -32,7 +32,6 @@ CellMap::CellMap(map_dimensions_t map_dimensions) {
       cell_map[i].push_back(cell);
     }
   }
-
 }
 
 void CellMap::toggle_update() {
@@ -51,7 +50,7 @@ bool CellMap::get_update_state() {
 void CellMap::render_cells(SDL_Renderer *renderer) {
   for (int i = 0; i < num_rows; i++) {
     for (int j = 0; j < num_cols; j++) {
-      cell_t target_cell = cell_map[i][j];
+      cell_t target_cell {cell_map[i][j]};
 
       if (target_cell.state == 1) {
         SDL_RenderFillRect(renderer, target_cell.rect);
@@ -66,7 +65,7 @@ void CellMap::render_cells(SDL_Renderer *renderer) {
 void CellMap::set_cell_alive(SDL_FPoint *mouse_position) {
   for (int i = 0; i < cell_map.size(); i++) {
     for (int j = 0; j < cell_map[i].size(); j++) {
-      cell_t &current_cell = cell_map[i][j];
+      cell_t &current_cell {cell_map[i][j]};
 
       if (SDL_PointInRectFloat(mouse_position, current_cell.rect)) {
         current_cell.state = 1;
@@ -76,9 +75,8 @@ void CellMap::set_cell_alive(SDL_FPoint *mouse_position) {
 }
 
 bool CellMap::is_neighbour_cell(map_index_t neighbour) {
-
   try {
-    cell_t neighbour_cell = cell_map.at(neighbour.row).at(neighbour.col);
+    cell_t neighbour_cell {cell_map.at(neighbour.row).at(neighbour.col)};
     return true;
   } catch (const std::out_of_range &e) {
     return false;
@@ -87,10 +85,9 @@ bool CellMap::is_neighbour_cell(map_index_t neighbour) {
 }
 
 std::vector<cell_t> CellMap::get_alive_neighbours(cell_t cell) {
-  std::vector<cell_t> neighbour_cells;
+  std::vector<cell_t> alive_neighbour_cells;
 
-
-  map_index_t cell_pos = cell.map_index;
+  map_index_t cell_pos {cell.map_index};
 
   map_index_t top_left_neighbour {cell_pos.row - 1, cell_pos.col - 1};
   map_index_t top_neighbour {cell_pos.row - 1, cell_pos.col};
@@ -104,62 +101,70 @@ std::vector<cell_t> CellMap::get_alive_neighbours(cell_t cell) {
   map_index_t bottom_right_neighbour {cell_pos.row + 1, cell_pos.col + 1};
 
   if (is_neighbour_cell(top_left_neighbour)) {
-    cell_t neighbour_cell = cell_map[top_left_neighbour.row][top_left_neighbour.col];
+    cell_t neighbour_cell {cell_map[top_left_neighbour.row][top_left_neighbour.col]};
+
     if (neighbour_cell.state == 1) {
-      neighbour_cells.push_back(neighbour_cell);
+      alive_neighbour_cells.push_back(neighbour_cell);
     }
   }
 
   if (is_neighbour_cell(top_neighbour)) {
-    cell_t neighbour_cell = cell_map[top_neighbour.row][top_neighbour.col];
+    cell_t neighbour_cell {cell_map[top_neighbour.row][top_neighbour.col]};
+
     if (neighbour_cell.state == 1) {
-      neighbour_cells.push_back(neighbour_cell);
+      alive_neighbour_cells.push_back(neighbour_cell);
     }
   }
 
   if (is_neighbour_cell(top_right_neighbour)) {
-    cell_t neighbour_cell = cell_map[top_right_neighbour.row][top_right_neighbour.col];
+    cell_t neighbour_cell {cell_map[top_right_neighbour.row][top_right_neighbour.col]};
+
     if (neighbour_cell.state == 1) {
-      neighbour_cells.push_back(neighbour_cell);
+      alive_neighbour_cells.push_back(neighbour_cell);
     }
   }
 
   if (is_neighbour_cell(left_neighbour)) {
-    cell_t neighbour_cell = cell_map[left_neighbour.row][left_neighbour.col];
+    cell_t neighbour_cell {cell_map[left_neighbour.row][left_neighbour.col]};
+
     if (neighbour_cell.state == 1) {
-      neighbour_cells.push_back(neighbour_cell);
+      alive_neighbour_cells.push_back(neighbour_cell);
     }
   }
 
   if (is_neighbour_cell(right_neighbour)) {
-    cell_t neighbour_cell = cell_map[right_neighbour.row][right_neighbour.col];
+    cell_t neighbour_cell {cell_map[right_neighbour.row][right_neighbour.col]};
+
     if (neighbour_cell.state == 1) {
-      neighbour_cells.push_back(neighbour_cell);
+      alive_neighbour_cells.push_back(neighbour_cell);
     }
   }
 
   if (is_neighbour_cell(bottom_left_neighbour)) {
-    cell_t neighbour_cell = cell_map[bottom_left_neighbour.row][bottom_left_neighbour.col];
+    cell_t neighbour_cell {cell_map[bottom_left_neighbour.row][bottom_left_neighbour.col]};
+
     if (neighbour_cell.state == 1) {
-      neighbour_cells.push_back(neighbour_cell);
+      alive_neighbour_cells.push_back(neighbour_cell);
     }
   }
 
   if (is_neighbour_cell(bottom_neighbour)) {
-    cell_t neighbour_cell = cell_map[bottom_neighbour.row][bottom_neighbour.col];
+    cell_t neighbour_cell {cell_map[bottom_neighbour.row][bottom_neighbour.col]};
+
     if (neighbour_cell.state == 1) {
-      neighbour_cells.push_back(neighbour_cell);
+      alive_neighbour_cells.push_back(neighbour_cell);
     }
   }
 
   if (is_neighbour_cell(bottom_right_neighbour)) {
-    cell_t neighbour_cell = cell_map[bottom_right_neighbour.row][bottom_right_neighbour.col];
+    cell_t neighbour_cell {cell_map[bottom_right_neighbour.row][bottom_right_neighbour.col]};
+
     if (neighbour_cell.state == 1) {
-      neighbour_cells.push_back(neighbour_cell);
+      alive_neighbour_cells.push_back(neighbour_cell);
     }
   }
 
-  return neighbour_cells;
+  return alive_neighbour_cells;
 }
 
 void CellMap::update_cell_map(map_dimensions_t map_dimensions) {
@@ -168,17 +173,21 @@ void CellMap::update_cell_map(map_dimensions_t map_dimensions) {
 
   for (int i = 0; i < cell_map.size(); i++) {
     for (int j = 0; j < cell_map[i].size(); j++) {
-      cell_t current_cell = cell_map[i][j];
-      std::vector<cell_t> alive_neighbours = get_alive_neighbours(current_cell);
+
+      cell_t current_cell {cell_map[i][j]};
+      std::vector<cell_t> alive_neighbours {get_alive_neighbours(current_cell)};
+
       if (alive_neighbours.size() == 3) {
         current_cell.state = 1;
         alive_cells.push_back(current_cell);
-      } else if ((alive_neighbours.size() == 2 || alive_neighbours.size() == 3) && current_cell.state == 1) {
+      } else if ((alive_neighbours.size() == 2 || alive_neighbours.size() == 3)
+          && current_cell.state == 1) {
         alive_cells.push_back(current_cell);
         continue;
       } else {
         current_cell.state = 0;
       }
+
     }
   }
 
@@ -200,7 +209,7 @@ void CellMap::update_cell_map(map_dimensions_t map_dimensions) {
   }
 
   for (int i = 0; i < alive_cells.size(); i++) {
-    cell_t alive_cell = alive_cells[i];
+    cell_t alive_cell {alive_cells[i]};
     next_cell_map[alive_cell.map_index.row][alive_cell.map_index.col] = alive_cell;
   }
 

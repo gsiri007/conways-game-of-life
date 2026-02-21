@@ -1,5 +1,6 @@
 #include <SDL3/SDL_render.h>
 #include <vector>
+#include <string>
 #include <SDL3/SDL_rect.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
@@ -27,6 +28,7 @@ public:
   void render_map(SDL_Renderer *renderer, TTF_TextEngine *text_engine, TTF_Font *ttf_font);
   void set_cell_alive(SDL_FPoint *mouse_position);
   void update_cell_map(dimensions_t map_dimensions);
+  void destroy_cell_map(std::vector<std::vector<cell_t>> cell_map);
   void toggle_update();
   bool get_update_state();
   bool is_neighbour_cell(map_index_t neighbour);
@@ -43,6 +45,9 @@ private:
 
   int generation;
   int population;
+
+  std::string generation_fmt;
+  std::string population_fmt;
 
   bool is_updating;
 };

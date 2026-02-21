@@ -1,5 +1,7 @@
 #include "Game.hpp"
 #include <SDL3/SDL_error.h>
+#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_oldnames.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
 Game::Game() {
@@ -73,8 +75,11 @@ void Game::run_loop() {
 void Game::shutdown() {
   TTF_CloseFont(ttf_font);
   TTF_DestroyRendererTextEngine(text_engine);
+  TTF_Quit();
+
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
+  SDL_Quit();
 }
 
 void Game::process_input() {
@@ -111,7 +116,6 @@ void Game::process_input() {
 }
 
 void Game::generate_output() {
-
   cell_map.render_map(renderer, text_engine, ttf_font);
 }
 

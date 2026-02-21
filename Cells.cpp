@@ -4,7 +4,6 @@
 #include <SDL3/SDL_video.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <stdexcept>
-#include <string>
 #include <vector>
 #include <format>
 
@@ -73,8 +72,8 @@ void CellMap::render_map(SDL_Renderer *renderer, TTF_TextEngine *text_engine, TT
     }
   }
 
-  std::string generation_fmt {std::format("Generation: {}", generation)};
-  std::string population_fmt {std::format("Population: {}", population)};
+   generation_fmt = std::format("Generation: {}", generation);
+   population_fmt = std::format("Population: {}", population);
 
   TTF_Text *generation_txt = TTF_CreateText(
       text_engine,
@@ -91,7 +90,19 @@ void CellMap::render_map(SDL_Renderer *renderer, TTF_TextEngine *text_engine, TT
   TTF_DrawRendererText(generation_txt, 1080, 0);
   TTF_DrawRendererText(population_txt, 1080, 30);
 
+  TTF_DestroyText(generation_txt);
+  TTF_DestroyText(population_txt);
+
   SDL_RenderPresent(renderer);
+}
+
+void CellMap::destroy_cell_map(std::vector<std::vector<cell_t>> cell_map) {
+  for (int i = 0; i < num_rows; i++) {
+    for (int j = 0; j < num_cols; j++) {
+      cell_t current_cell = cell_map[i][j];
+      delete current_cell.rect;
+    }
+  }
 }
 
 void CellMap::set_cell_alive(SDL_FPoint *mouse_position) {
@@ -210,42 +221,56 @@ void CellMap::update_cell_map(dimensions_t map_dimensions) {
       std::vector<cell_t> alive_neighbours {get_alive_neighbours(current_cell)};
 
       if (alive_neighbours.size() == 3) {
-        current_cell.state = 1;
-        alive_cells.push_back(current_cell);
+        SDL_FRect *rect = new SDL_FRect();
+
+        rect->x = j * cell_width;
+        rect->y = i * cell_height;
+        rect->w = cell_width;
+        rect->h = cell_height;
+
+        map_index_t index {i, j};
+
+        cell_t cell {rect, 1, index};
+
+        alive_cells.push_back(cell);
+        next_cell_map[i].push_back(cell);
+
       } else if ((alive_neighbours.size() == 2 || alive_neighbours.size() == 3)
           && current_cell.state == 1) {
-        alive_cells.push_back(current_cell);
-        continue;
+        SDL_FRect *rect = new SDL_FRect();
+
+        rect->x = j * cell_width;
+        rect->y = i * cell_height;
+        rect->w = cell_width;
+        rect->h = cell_height;
+
+        map_index_t index {i, j};
+
+        cell_t cell {rect, 1, index};
+
+        alive_cells.push_back(cell);
+        next_cell_map[i].push_back(cell);
       } else {
-        current_cell.state = 0;
+        SDL_FRect *rect = new SDL_FRect();
+
+        rect->x = j * cell_width;
+        rect->y = i * cell_height;
+        rect->w = cell_width;
+        rect->h = cell_height;
+
+        map_index_t index {i, j};
+
+        cell_t cell {rect, 0, index};
+
+        next_cell_map[i].push_back(cell);
       }
 
     }
   }
 
-  for (int i = 0; i < num_rows; i++) {
-    for (int j = 0; j < num_cols; j++) {
-      SDL_FRect *rect = new SDL_FRect();
-
-      rect->x = j * cell_width;
-      rect->y = i * cell_height;
-      rect->w = cell_width;
-      rect->h = cell_height;
-
-      map_index_t index {i, j};
-
-      cell_t cell {rect, 0, index};
-
-      next_cell_map[i].push_back(cell);
-    }
-  }
-
-  for (int i = 0; i < alive_cells.size(); i++) {
-    cell_t alive_cell {alive_cells[i]};
-    next_cell_map[alive_cell.map_index.row][alive_cell.map_index.col] = alive_cell;
-  }
-
   generation++;
   population = alive_cells.size();
+
+  destroy_cell_map(cell_map);
   cell_map = next_cell_map;
 }

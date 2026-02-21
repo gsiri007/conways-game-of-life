@@ -24,12 +24,12 @@ void CellMap::init_cell_map(dimensions_t map_dimensions) {
 
   for (int i = 0; i < num_rows; i++) {
     for (int j = 0; j < num_cols; j++) {
-      SDL_FRect *rect = new SDL_FRect();
+      SDL_FRect rect = SDL_FRect();
 
-      rect->x = j * cell_width;
-      rect->y = i * cell_height;
-      rect->w = cell_width;
-      rect->h = cell_height;
+      rect.x = j * cell_width;
+      rect.y = i * cell_height;
+      rect.w = cell_width;
+      rect.h = cell_height;
 
       map_index_t index {i, j};
 
@@ -64,11 +64,11 @@ void CellMap::render_map(SDL_Renderer *renderer, TTF_TextEngine *text_engine, TT
       cell_t target_cell {cell_map[i][j]};
 
       if (target_cell.state == 1) {
-        SDL_RenderFillRect(renderer, target_cell.rect);
+        SDL_RenderFillRect(renderer, &target_cell.rect);
         continue;
       }
 
-      SDL_RenderRect(renderer, target_cell.rect);
+      SDL_RenderRect(renderer, &target_cell.rect);
     }
   }
 
@@ -96,21 +96,12 @@ void CellMap::render_map(SDL_Renderer *renderer, TTF_TextEngine *text_engine, TT
   SDL_RenderPresent(renderer);
 }
 
-void CellMap::destroy_cell_map(std::vector<std::vector<cell_t>> cell_map) {
-  for (int i = 0; i < num_rows; i++) {
-    for (int j = 0; j < num_cols; j++) {
-      cell_t current_cell = cell_map[i][j];
-      delete current_cell.rect;
-    }
-  }
-}
-
 void CellMap::set_cell_alive(SDL_FPoint *mouse_position) {
   for (int i = 0; i < cell_map.size(); i++) {
     for (int j = 0; j < cell_map[i].size(); j++) {
       cell_t &current_cell {cell_map[i][j]};
 
-      if (SDL_PointInRectFloat(mouse_position, current_cell.rect)) {
+      if (SDL_PointInRectFloat(mouse_position, &current_cell.rect)) {
         current_cell.state = 1;
       }
     }
@@ -221,12 +212,12 @@ void CellMap::update_cell_map(dimensions_t map_dimensions) {
       std::vector<cell_t> alive_neighbours {get_alive_neighbours(current_cell)};
 
       if (alive_neighbours.size() == 3) {
-        SDL_FRect *rect = new SDL_FRect();
+        SDL_FRect rect = SDL_FRect();
 
-        rect->x = j * cell_width;
-        rect->y = i * cell_height;
-        rect->w = cell_width;
-        rect->h = cell_height;
+        rect.x = j * cell_width;
+        rect.y = i * cell_height;
+        rect.w = cell_width;
+        rect.h = cell_height;
 
         map_index_t index {i, j};
 
@@ -237,12 +228,12 @@ void CellMap::update_cell_map(dimensions_t map_dimensions) {
 
       } else if ((alive_neighbours.size() == 2 || alive_neighbours.size() == 3)
           && current_cell.state == 1) {
-        SDL_FRect *rect = new SDL_FRect();
+        SDL_FRect rect = SDL_FRect();
 
-        rect->x = j * cell_width;
-        rect->y = i * cell_height;
-        rect->w = cell_width;
-        rect->h = cell_height;
+        rect.x = j * cell_width;
+        rect.y = i * cell_height;
+        rect.w = cell_width;
+        rect.h = cell_height;
 
         map_index_t index {i, j};
 
@@ -251,12 +242,12 @@ void CellMap::update_cell_map(dimensions_t map_dimensions) {
         alive_cells.push_back(cell);
         next_cell_map[i].push_back(cell);
       } else {
-        SDL_FRect *rect = new SDL_FRect();
+        SDL_FRect rect = SDL_FRect();
 
-        rect->x = j * cell_width;
-        rect->y = i * cell_height;
-        rect->w = cell_width;
-        rect->h = cell_height;
+        rect.x = j * cell_width;
+        rect.y = i * cell_height;
+        rect.w = cell_width;
+        rect.h = cell_height;
 
         map_index_t index {i, j};
 
@@ -271,6 +262,5 @@ void CellMap::update_cell_map(dimensions_t map_dimensions) {
   generation++;
   population = alive_cells.size();
 
-  destroy_cell_map(cell_map);
   cell_map = next_cell_map;
 }

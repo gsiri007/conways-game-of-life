@@ -10,7 +10,7 @@ typedef struct MapIndex {
 } map_index_t;
 
 typedef struct Cell {
-  SDL_FRect *rect;
+  SDL_FRect rect;
   int state;   //  dead = 0, alive = 1
   map_index_t map_index;
 } cell_t;
@@ -28,7 +28,6 @@ public:
   void render_map(SDL_Renderer *renderer, TTF_TextEngine *text_engine, TTF_Font *ttf_font);
   void set_cell_alive(SDL_FPoint *mouse_position);
   void update_cell_map(dimensions_t map_dimensions);
-  void destroy_cell_map(std::vector<std::vector<cell_t>> cell_map);
   void toggle_update();
   bool get_update_state();
   bool is_neighbour_cell(map_index_t neighbour);

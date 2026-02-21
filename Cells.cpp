@@ -2,12 +2,19 @@
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <stdexcept>
+#include <string>
 #include <vector>
+#include <format>
 
-CellMap::CellMap(map_dimensions_t map_dimensions) {
+CellMap::CellMap() {
   is_updating = false;
+  population = 0;
+  generation = 0;
+}
 
+void CellMap::init_cell_map(dimensions_t map_dimensions) {
   cell_width = (4.0 / 100) * map_dimensions.width;
   cell_height = (4.0 / 100) * map_dimensions.height;
 
@@ -47,7 +54,12 @@ bool CellMap::get_update_state() {
   return is_updating;
 }
 
-void CellMap::render_cells(SDL_Renderer *renderer) {
+void CellMap::render_map(SDL_Renderer *renderer, TTF_TextEngine *text_engine, TTF_Font *ttf_font) {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_RenderClear(renderer);
+
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
   for (int i = 0; i < num_rows; i++) {
     for (int j = 0; j < num_cols; j++) {
       cell_t target_cell {cell_map[i][j]};
@@ -60,6 +72,26 @@ void CellMap::render_cells(SDL_Renderer *renderer) {
       SDL_RenderRect(renderer, target_cell.rect);
     }
   }
+
+  std::string generation_fmt {std::format("Generation: {}", generation)};
+  std::string population_fmt {std::format("Population: {}", population)};
+
+  TTF_Text *generation_txt = TTF_CreateText(
+      text_engine,
+      ttf_font,
+      generation_fmt.c_str(),
+      0);
+
+  TTF_Text *population_txt = TTF_CreateText(
+      text_engine,
+      ttf_font,
+      population_fmt.c_str(),
+      0);
+
+  TTF_DrawRendererText(generation_txt, 1080, 0);
+  TTF_DrawRendererText(population_txt, 1080, 30);
+
+  SDL_RenderPresent(renderer);
 }
 
 void CellMap::set_cell_alive(SDL_FPoint *mouse_position) {
@@ -167,7 +199,7 @@ std::vector<cell_t> CellMap::get_alive_neighbours(cell_t cell) {
   return alive_neighbour_cells;
 }
 
-void CellMap::update_cell_map(map_dimensions_t map_dimensions) {
+void CellMap::update_cell_map(dimensions_t map_dimensions) {
   std::vector<std::vector<cell_t>> next_cell_map(num_rows);
   std::vector<cell_t> alive_cells;
 
@@ -213,5 +245,7 @@ void CellMap::update_cell_map(map_dimensions_t map_dimensions) {
     next_cell_map[alive_cell.map_index.row][alive_cell.map_index.col] = alive_cell;
   }
 
+  generation++;
+  population = alive_cells.size();
   cell_map = next_cell_map;
 }

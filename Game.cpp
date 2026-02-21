@@ -1,10 +1,6 @@
 #include "Game.hpp"
-#include <SDL3/SDL_oldnames.h>
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_scancode.h>
-#include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_timer.h>
-#include <iostream>
+#include <SDL3/SDL_error.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 Game::Game() {
   is_running = true;
@@ -17,9 +13,9 @@ bool Game::initialize() {
     return false;
   }
 
-  window = SDL_CreateWindow("GameOfLife", window_dimensions.width, window_dimensions.height, 0);
+  window = SDL_CreateWindow("GameOfLife", 1920, 1080, 0);
   if (!window) {
-    SDL_Log("Error creating window.");
+   SDL_Log("Error creating window.");
     return false;
   }
 
@@ -29,11 +25,31 @@ bool Game::initialize() {
     return false;
   }
 
+  bool ttf_result = TTF_Init();
+  if (!ttf_result) {
+    SDL_Log("Error initializing TTF.");
+    return false;
+  }
+
+  text_engine = TTF_CreateRendererTextEngine(renderer);
+  if (!text_engine) {
+    SDL_Log("Error creating text engine.");
+    return false;
+  }
+
+  ttf_font = TTF_OpenFont("./fonts/OpenSans-Regular.ttf", 16);
+  if (!ttf_font) {
+    SDL_Log("Error loading fonts.");
+    return false;
+  }
+
+ cell_map.init_cell_map(map_dimensions);
+
   return true;
 }
 
 void Game::run_loop() {
-  const int FPS {10};
+  const int FPS {5};
   const int frame_delay {1000 / FPS};
 
   Uint64 frame_start;
@@ -55,6 +71,8 @@ void Game::run_loop() {
 }
 
 void Game::shutdown() {
+  TTF_CloseFont(ttf_font);
+  TTF_DestroyRendererTextEngine(text_engine);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
 }
@@ -93,21 +111,13 @@ void Game::process_input() {
 }
 
 void Game::generate_output() {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
 
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-  cell_map.render_cells(renderer);
-
-  SDL_RenderPresent(renderer);
+  cell_map.render_map(renderer, text_engine, ttf_font);
 }
 
 void Game::update_game() {
   if (cell_map.get_update_state()) {
-    std::cout << "Updating cell map" << '\n';
-    cell_map.update_cell_map(window_dimensions);
+    cell_map.update_cell_map(map_dimensions);
     return;
   }
-  std::cout << "Paused cell map" << '\n';
 }

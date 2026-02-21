@@ -1,5 +1,6 @@
 #include <SDL3/SDL.h>
 #include "Cells.hpp"
+#include <SDL3_ttf/SDL_ttf.h>
 
 class Game {
 public:
@@ -13,9 +14,12 @@ private:
 
   SDL_Window *window;
   SDL_Renderer *renderer;
+  TTF_TextEngine *text_engine;
+  TTF_Font *ttf_font;
 
-  map_dimensions_t window_dimensions {1000, 1000};
-  CellMap cell_map = CellMap(window_dimensions);
+  const dimensions_t window_dimensions {1920, 1080};
+  const dimensions_t map_dimensions {1000, 1080};
+  CellMap cell_map = CellMap();
 
   void process_input();
   void generate_output();

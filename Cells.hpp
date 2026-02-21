@@ -1,6 +1,7 @@
 #include <SDL3/SDL_render.h>
 #include <vector>
 #include <SDL3/SDL_rect.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 typedef struct MapIndex {
   int row; // row index
@@ -13,18 +14,19 @@ typedef struct Cell {
   map_index_t map_index;
 } cell_t;
 
-typedef struct MapDimensions {
+typedef struct Dimensions {
   int width;
   int height;
-} map_dimensions_t;
+} dimensions_t;
 
 
 class CellMap {
 public:
-  CellMap(map_dimensions_t map_dimensions);
-  void render_cells(SDL_Renderer *renderer);
+  CellMap();
+  void init_cell_map(dimensions_t map_dimensions);
+  void render_map(SDL_Renderer *renderer, TTF_TextEngine *text_engine, TTF_Font *ttf_font);
   void set_cell_alive(SDL_FPoint *mouse_position);
-  void update_cell_map(map_dimensions_t map_dimensions);
+  void update_cell_map(dimensions_t map_dimensions);
   void toggle_update();
   bool get_update_state();
   bool is_neighbour_cell(map_index_t neighbour);
@@ -38,6 +40,9 @@ private:
   int num_cols;
 
   std::vector<std::vector<cell_t>> cell_map;
+
+  int generation;
+  int population;
 
   bool is_updating;
 };

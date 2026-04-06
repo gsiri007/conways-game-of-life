@@ -16,6 +16,7 @@ private:
   SDL_Renderer *renderer;
   TTF_TextEngine *text_engine;
   TTF_Font *ttf_font;
+  TTF_Text *controls_txt;
 
   const dimensions_t window_dimensions {1920, 1080};
   const dimensions_t map_dimensions {1000, 1080};

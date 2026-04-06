@@ -54,10 +54,7 @@ bool CellMap::get_update_state() {
 }
 
 void CellMap::render_map(SDL_Renderer *renderer, TTF_TextEngine *text_engine, TTF_Font *ttf_font) {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
 
-  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
   for (int i = 0; i < num_rows; i++) {
     for (int j = 0; j < num_cols; j++) {
@@ -93,7 +90,6 @@ void CellMap::render_map(SDL_Renderer *renderer, TTF_TextEngine *text_engine, TT
   TTF_DestroyText(generation_txt);
   TTF_DestroyText(population_txt);
 
-  SDL_RenderPresent(renderer);
 }
 
 void CellMap::set_cell_alive(SDL_FPoint *mouse_position) {

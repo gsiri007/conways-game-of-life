@@ -45,7 +45,20 @@ bool Game::initialize() {
     return false;
   }
 
- cell_map.init_cell_map(map_dimensions);
+  std::string controls_raw = R"(
+    Mouse Click: Set a cell as alive.
+
+    Return (Enter): Toggle simulation start/stop.
+
+    Esc / Q: Quit the application.)";
+
+  controls_txt = TTF_CreateText(
+      text_engine,
+      ttf_font,
+      controls_raw.c_str(),
+      0);
+
+  cell_map.init_cell_map(map_dimensions);
 
   return true;
 }
@@ -73,6 +86,8 @@ void Game::run_loop() {
 }
 
 void Game::shutdown() {
+
+  TTF_DestroyText(controls_txt);
   TTF_CloseFont(ttf_font);
   TTF_DestroyRendererTextEngine(text_engine);
   TTF_Quit();
@@ -115,13 +130,20 @@ void Game::process_input() {
 
 }
 
-void Game::generate_output() {
-  cell_map.render_map(renderer, text_engine, ttf_font);
-}
-
 void Game::update_game() {
   if (cell_map.get_update_state()) {
     cell_map.update_cell_map(map_dimensions);
     return;
   }
+}
+
+void Game::generate_output() {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_RenderClear(renderer);
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+  cell_map.render_map(renderer, text_engine, ttf_font);
+  TTF_DrawRendererText(controls_txt, 1080, 60);
+
+  SDL_RenderPresent(renderer);
 }
